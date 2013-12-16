@@ -1,12 +1,31 @@
 from flask import jsonify
 
 
-class Endpoint(object):
-    # Requirements
-    get = []
-    post = []
-    api_auth = False
+def requires(get=[], post=[], api_auth=False):
+    def decorator(method):
+        def wrapper(cls, *args, **kwargs):
+            print(cls)
+            for k in get:
+                if k not in cls.data['get']:
+                    cls._error = True
+                    break
 
+            # Check POST parameters
+            for k in post:
+                if k not in cls.data['post']:
+                    cls._error = True
+                    break
+
+            # Check API Auth
+            if api_auth and cls.data['auth'] is None:
+                cls._error = True
+
+            method(cls, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
+class Endpoint(object):
     # Error handling
     _error = False
 
@@ -23,33 +42,11 @@ class Endpoint(object):
         self.data['auth'] = kwargs.pop('auth')
         self.data['params'] = kwargs.pop('params')
 
-        self.check_requeriments()
-
-    def check_requeriments(self):
-        # Check GET parameters
-        for k in self.get:
-            if k not in self.data['get']:
-                self._error = True
-                break
-
-        # Check POST parameters
-        for k in self.post:
-            if k not in self.data['post']:
-                self._error = True
-                break
-
-        # Check API Auth
-        if self.api_auth and self.data['auth'] is None:
-            self._error = True
-
-    def summary(self):
-        self.result = dict(item=[{"text": "Test"}])
-
     def response(self):
         if self._error:
             self.result = dict(error="Requeriments not met.")
 
-        return jsonify(self.result)
+        return jsonify(self.result), 500
 
     def call(self, method_name):
         try:

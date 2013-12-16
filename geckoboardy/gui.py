@@ -16,8 +16,10 @@ print('Services loaded: {}'.format(", ".join(conf.SERVICES)))
 
 
 # Main route
-@app.route("/<string:service>/<string:method>/", defaults={'path': ''})
-@app.route("/<string:service>/<string:method>/<path:path>")
+@app.route("/<string:service>/<string:method>/", defaults={'path': ''},
+           methods=['GET', 'POST'])
+@app.route("/<string:service>/<string:method>/<path:path>",
+           methods=['GET', 'POST'])
 def widget(service, method, path):
     """
     Unique URL handler
