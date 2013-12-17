@@ -31,7 +31,11 @@ def widget(service, method, path):
 
     if service in conf.SERVICES:
         try:
-            module = import_module('geckoboardy.services.{}'.format(service))
+            try:
+                module = import_module(
+                    'geckoboardy.services.{}'.format(service))
+            except ImportError:
+                module = import_module('local_services.{}'.format(service))
             endpoint = module.Service(
                 auth=auth, get=request.args,
                 post=request.form, request=request.json,
@@ -43,4 +47,3 @@ def widget(service, method, path):
     else:
         # Service not allowed
         return "Service {} not allowed.".format(service), 403
-

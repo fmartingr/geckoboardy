@@ -37,3 +37,6 @@ nosetests.xml
 
 # Virtualenv
 .virtualenv
+
+# App
+/local_services
