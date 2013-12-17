@@ -2,10 +2,13 @@ from geckoboardy.core import Endpoint, requires
 
 
 class Service(Endpoint):
+    # Globals
+    get = ['ju3']
+    post = []
+    api_auth = True
 
     @requires(get=['username'])
     def get_test(self):
-        print('le')
         self.result['text'] = 'Success!'
 
     @requires(post=['username'])

@@ -1,23 +1,29 @@
+from itertools import chain
 from flask import jsonify
 
 
+#
+# DECORATORS
+#
 def requires(get=[], post=[], api_auth=False):
+    """
+    Set the service method post, get and auth requirements.
+    """
     def decorator(method):
         def wrapper(cls, *args, **kwargs):
-            print(cls)
-            for k in get:
+            for k in chain(get, cls.get):
                 if k not in cls.data['get']:
                     cls._error = True
                     break
 
             # Check POST parameters
-            for k in post:
+            for k in chain(post, cls.post):
                 if k not in cls.data['post']:
                     cls._error = True
                     break
 
             # Check API Auth
-            if api_auth and cls.data['auth'] is None:
+            if (api_auth or cls.api_auth) and cls.data['auth'] is None:
                 cls._error = True
 
             method(cls, *args, **kwargs)
@@ -25,6 +31,9 @@ def requires(get=[], post=[], api_auth=False):
     return decorator
 
 
+#
+# Endpoint base class
+#
 class Endpoint(object):
     # Error handling
     _error = False
